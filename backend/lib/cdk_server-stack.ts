@@ -220,3 +220,5 @@ cd /home/ec2-user/app
     });
   }
 }
+
+// trigger CI/CD
