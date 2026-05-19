@@ -1,4 +1,4 @@
-name: Deploy CDK Stack
+name: Deploy CDK + EC2 Services
 
 on:
   push:
@@ -10,16 +10,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # =========================
+      # 1. Repo auschecken
+      # =========================
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # =========================
+      # 2. Node.js Setup
+      # =========================
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
       # =========================
-      # Backend installieren
+      # 3. Backend Dependencies (CDK Project)
       # =========================
       - name: Install backend dependencies
         run: |
@@ -27,13 +33,13 @@ jobs:
           npm install
 
       # =========================
-      # AWS CDK installieren
+      # 4. CDK installieren
       # =========================
       - name: Install CDK
         run: npm install -g aws-cdk
 
       # =========================
-      # AWS Credentials setzen
+      # 5. AWS Credentials
       # =========================
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -43,13 +49,32 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       # =========================
-      # CDK Bootstrap (nur einmal nötig)
+      # 6. CDK Bootstrap
       # =========================
       - name: CDK Bootstrap
         run: cd backend && cdk bootstrap || true
 
       # =========================
-      # CDK Deploy
+      # 7. CDK Deploy (Infrastructure)
       # =========================
-      - name: Deploy stack
+      - name: Deploy CDK Stack
         run: cd backend && cdk deploy --require-approval never
+
+      # =========================
+      # 8. Trigger EC2 Update via SSM
+      # =========================
+      - name: Deploy Docker Services on EC2 via SSM
+        run: |
+          aws ssm send-command \
+            --instance-ids "${{ secrets.EC2_INSTANCE_ID }}" \
+            --document-name "AWS-RunShellScript" \
+            --comment "Deploy docker stack update" \
+            --parameters 'commands=[
+              "echo ===== DEPLOY START =====",
+              "cd /home/ec2-user/app || cd /home/ec2-user",
+              "echo Pull latest docker images...",
+              "docker compose down || true",
+              "docker compose pull || true",
+              "docker compose up -d || docker-compose up -d",
+              "echo ===== DEPLOY DONE ====="
+            ]'
