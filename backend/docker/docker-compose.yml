@@ -82,10 +82,10 @@ services:
       # =========================
       # CORS MIDDLEWARE (OPTION 3)
       # =========================
-      - "traefik.http.middlewares.cors.headers.accesscontrolalloworigin=*"
-      - "traefik.http.middlewares.cors.headers.accesscontrolallowmethods=GET,POST,OPTIONS,HEAD"
-      - "traefik.http.middlewares.cors.headers.accesscontrolallowheaders=*"
-      - "traefik.http.middlewares.cors.headers.addvaryheader=true"
+      - "traefik.http.middlewares.cors.headers.accessControlAllowOrigin=*"
+      - "traefik.http.middlewares.cors.headers.accessControlAllowMethods=GET,POST,OPTIONS,HEAD"
+      - "traefik.http.middlewares.cors.headers.accessControlAllowHeaders=*"
+      - "traefik.http.middlewares.cors.headers.addVaryHeader=true"
 
       # attach middleware
       - "traefik.http.routers.mediamtx.rule=PathPrefix(`/mystream`)"
