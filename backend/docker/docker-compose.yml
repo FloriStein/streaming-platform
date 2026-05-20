@@ -1,0 +1,74 @@
+services:
+  traefik:
+    image: traefik:v3
+
+    container_name: traefik
+
+    restart: unless-stopped
+
+    command:
+      - "--api.insecure=true"
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+  coturn:
+    image: coturn/coturn
+
+    container_name: coturn
+
+    restart: unless-stopped
+
+    command: >
+      -n
+      --lt-cred-mech
+      --fingerprint
+      --realm=local
+      --user=testuser:testpass
+      --listening-ip=0.0.0.0
+      --external-ip=3.126.131.56
+      --min-port=49160
+      --max-port=49200
+
+    ports:
+      - "3478:3478"
+      - "3478:3478/udp"
+      - "49160-49200:49160-49200/udp"
+
+  mediamtx:
+    image: bluenviron/mediamtx:latest
+
+    container_name: mediamtx
+
+    restart: unless-stopped
+
+    environment:
+      MTX_WEBRTC: "yes"
+
+      MTX_WEBRTCICESERVERS: |
+        - urls: stun:3.126.131.56
+        - urls: turn:3.126.131.56
+          username: testuser
+          credential: testpass
+
+    expose:
+      - "8889"
+
+    ports:
+      - "8554:8554"
+      - "8189:8189/udp"
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mediamtx.rule=PathPrefix(`/`)"
+      - "traefik.http.routers.mediamtx.entrypoints=web"
+      - "traefik.http.services.mediamtx.loadbalancer.server.port=8889"
