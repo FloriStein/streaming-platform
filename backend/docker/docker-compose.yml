@@ -46,20 +46,20 @@ services:
       - "49160-49200:49160-49200/udp"
 
   mediamtx:
-  image: bluenviron/mediamtx:latest
+    image: bluenviron/mediamtx:latest
 
-  container_name: mediamtx
+    container_name: mediamtx
 
-  restart: unless-stopped
+    restart: unless-stopped
 
-  environment:
-    MTX_WEBRTC: "yes"
+    environment:
+      MTX_WEBRTC: "yes"
 
-    MTX_WEBRTCICESERVERS2: >
-      [{"urls":["stun:3.126.131.56:3478"]},
-       {"urls":["turn:3.126.131.56:3478"],
-        "username":"testuser",
-        "credential":"testpass"}]
+      MTX_WEBRTCICESERVERS2: >
+        [{"urls":["stun:3.126.131.56:3478"]},
+         {"urls":["turn:3.126.131.56:3478"],
+          "username":"testuser",
+          "credential":"testpass"}]
 
     expose:
       - "8889"
@@ -68,35 +68,35 @@ services:
       - "8554:8554"
       - "8189:8189/udp"
 
-labels:
-  - "traefik.enable=true"
+    labels:
+      - "traefik.enable=true"
 
-  # =========================
-  # ROUTER
-  # =========================
-  - "traefik.http.routers.mediamtx.rule=PathPrefix(`/mystream`)"
-  - "traefik.http.routers.mediamtx.entrypoints=web"
-  - "traefik.http.routers.mediamtx.service=mediamtx"
+      # =========================
+      # ROUTER
+      # =========================
+      - "traefik.http.routers.mediamtx.rule=PathPrefix(`/mystream`)"
+      - "traefik.http.routers.mediamtx.entrypoints=web"
+      - "traefik.http.routers.mediamtx.service=mediamtx"
 
-  # =========================
-  # SERVICE
-  # =========================
-  - "traefik.http.services.mediamtx.loadbalancer.server.port=8889"
+      # =========================
+      # SERVICE
+      # =========================
+      - "traefik.http.services.mediamtx.loadbalancer.server.port=8889"
 
-  # =========================
-  # STRIP PREFIX (WICHTIG)
-  # =========================
-  - "traefik.http.middlewares.strip-mystream.stripprefix.prefixes=/mystream"
+      # =========================
+      # STRIP PREFIX
+      # =========================
+      - "traefik.http.middlewares.strip-mystream.stripprefix.prefixes=/mystream"
 
-  # =========================
-  # CORS MIDDLEWARE
-  # =========================
-  - "traefik.http.middlewares.cors.headers.accessControlAllowOrigin=*"
-  - "traefik.http.middlewares.cors.headers.accessControlAllowMethods=GET,POST,OPTIONS,HEAD"
-  - "traefik.http.middlewares.cors.headers.accessControlAllowHeaders=*"
-  - "traefik.http.middlewares.cors.headers.addVaryHeader=true"
+      # =========================
+      # CORS MIDDLEWARE
+      # =========================
+      - "traefik.http.middlewares.cors.headers.accessControlAllowOrigin=*"
+      - "traefik.http.middlewares.cors.headers.accessControlAllowMethods=GET,POST,OPTIONS,HEAD"
+      - "traefik.http.middlewares.cors.headers.accessControlAllowHeaders=*"
+      - "traefik.http.middlewares.cors.headers.addVaryHeader=true"
 
-  # =========================
-  # ATTACH MIDDLEWARES
-  # =========================
-  - "traefik.http.routers.mediamtx.middlewares=strip-mystream,cors"
+      # =========================
+      # ATTACH MIDDLEWARES
+      # =========================
+      - "traefik.http.routers.mediamtx.middlewares=strip-mystream,cors"
