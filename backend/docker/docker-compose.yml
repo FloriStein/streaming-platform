@@ -55,11 +55,11 @@ services:
     environment:
       MTX_WEBRTC: "yes"
 
-      MTX_WEBRTCICESERVERS: |
-        - urls: stun:3.126.131.56
-        - urls: turn:3.126.131.56
-          username: testuser
-          credential: testpass
+    MTX_WEBRTCICESERVERS2: >
+      [{"urls":["stun:3.126.131.56:3478"]},
+      {"urls":["turn:3.126.131.56:3478"],
+        "username":"testuser",
+        "credential":"testpass"}]
 
     expose:
       - "8889"
