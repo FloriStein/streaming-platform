@@ -95,16 +95,3 @@ services:
       # MIDDLEWARE ATTACHMENT
       # =========================
       - "traefik.http.routers.mediamtx.middlewares=cors"
-
-      # =========================
-      # CORS MIDDLEWARE
-      # =========================
-      - "traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist=*"
-      - "traefik.http.middlewares.cors.headers.accesscontrolallowmethods=GET,POST,OPTIONS,HEAD"
-      - "traefik.http.middlewares.cors.headers.accesscontrolallowheaders=*"
-      - "traefik.http.middlewares.cors.headers.addvaryheader=true"
-
-      # =========================
-      # ATTACH MIDDLEWARES
-      # =========================
-      - "traefik.http.routers.mediamtx.middlewares=strip-mystream,cors"
