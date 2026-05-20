@@ -1,4 +1,4 @@
-name: Deploy CDK + EC2 Services
+name: Deploy Streaming Stack
 
 on:
   push:
@@ -10,71 +10,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # =========================
-      # 1. Repo auschecken
-      # =========================
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      # =========================
-      # 2. Node.js Setup
-      # =========================
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      # =========================
-      # 3. Backend Dependencies (CDK Project)
-      # =========================
-      - name: Install backend dependencies
-        run: |
-          cd backend
-          npm install
-
-      # =========================
-      # 4. CDK installieren
-      # =========================
-      - name: Install CDK
-        run: npm install -g aws-cdk
-
-      # =========================
-      # 5. AWS Credentials
-      # =========================
-      - name: Configure AWS credentials
+      # AWS Login
+      - name: Configure AWS
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      # =========================
-      # 6. CDK Bootstrap
-      # =========================
-      - name: CDK Bootstrap
-        run: cd backend && cdk bootstrap || true
+      # Upload docker files to S3
+      - name: Upload docker config
+        run: |
+          aws s3 sync backend/docker s3://S3_BUCKET_NAME/docker
 
-      # =========================
-      # 7. CDK Deploy (Infrastructure)
-      # =========================
-      - name: Deploy CDK Stack
-        run: cd backend && cdk deploy --require-approval never
-
-      # =========================
-      # 8. Trigger EC2 Update via SSM
-      # =========================
-      - name: Deploy Docker Services on EC2 via SSM
+      # Deploy via SSM
+      - name: Restart containers
         run: |
           aws ssm send-command \
-            --instance-ids "${{ secrets.EC2_INSTANCE_ID }}" \
             --document-name "AWS-RunShellScript" \
-            --comment "Deploy docker stack update" \
+            --targets "Key=instanceIds,Values=YOUR_INSTANCE_ID" \
             --parameters 'commands=[
-              "echo ===== DEPLOY START =====",
-              "cd /home/ec2-user/app || cd /home/ec2-user",
-              "echo Pull latest docker images...",
-              "docker compose down || true",
-              "docker compose pull || true",
-              "docker compose up -d || docker-compose up -d",
-              "echo ===== DEPLOY DONE ====="
+              "aws s3 sync s3://S3_BUCKET_NAME/docker /home/ec2-user/app",
+              "cd /home/ec2-user/app",
+              "/usr/local/bin/docker-compose up -d"
             ]'

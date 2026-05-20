@@ -1,7 +1,7 @@
 import { useWHEP } from "../hooks/useWHEP";
 
 export default function App() {
-  const videoRef = useWHEP("http://18.192.233.133:8889/mystream/whep");
+  const videoRef = useWHEP("http://3.126.131.56:8889/mystream/whep");
 
   return (
     <div style={{ padding: 20 }}>

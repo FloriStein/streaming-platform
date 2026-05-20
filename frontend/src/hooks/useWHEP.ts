@@ -6,10 +6,10 @@ export function useWHEP(videoRef: React.RefObject<HTMLVideoElement | null>) {
       const pc = new RTCPeerConnection({
         iceServers: [
           {
-            urls: "stun:18.192.233.133:3478",
+            urls: "stun:3.126.131.56",
           },
           {
-            urls: "turn:18.192.233.133:3478?transport=udp",
+            urls: "turn:3.126.131.56?transport=udp",
             username: "testuser",
             credential: "testpass",
           },
@@ -52,7 +52,7 @@ export function useWHEP(videoRef: React.RefObject<HTMLVideoElement | null>) {
       console.log("FINAL SDP:");
       console.log(pc.localDescription?.sdp);
 
-      const response = await fetch("http://18.192.233.133:8889/mystream/whep", {
+      const response = await fetch("http://3.126.131.56/mystream/whep", {
         method: "POST",
         headers: {
           "Content-Type": "application/sdp",
