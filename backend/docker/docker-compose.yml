@@ -72,9 +72,9 @@ services:
       - "traefik.enable=true"
 
       # =========================
-      # ROUTER
+      # ROUTER (WHEP direkt korrekt erreichbar)
       # =========================
-      - "traefik.http.routers.mediamtx.rule=PathPrefix(`/mystream`)"
+      - "traefik.http.routers.mediamtx.rule=PathPrefix(`/`)"
       - "traefik.http.routers.mediamtx.entrypoints=web"
       - "traefik.http.routers.mediamtx.service=mediamtx"
 
@@ -84,9 +84,17 @@ services:
       - "traefik.http.services.mediamtx.loadbalancer.server.port=8889"
 
       # =========================
-      # STRIP PREFIX
+      # CORS (optional, falls du Browser direkt nutzt)
       # =========================
-      - "traefik.http.middlewares.strip-mystream.stripprefix.prefixes=/mystream"
+      - "traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist=*"
+      - "traefik.http.middlewares.cors.headers.accesscontrolallowmethods=GET,POST,OPTIONS,HEAD"
+      - "traefik.http.middlewares.cors.headers.accesscontrolallowheaders=*"
+      - "traefik.http.middlewares.cors.headers.addvaryheader=true"
+
+      # =========================
+      # MIDDLEWARE ATTACHMENT
+      # =========================
+      - "traefik.http.routers.mediamtx.middlewares=cors"
 
       # =========================
       # CORS MIDDLEWARE
