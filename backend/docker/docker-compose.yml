@@ -24,26 +24,23 @@ services:
 
   coturn:
     image: coturn/coturn
-
     container_name: coturn
-
     restart: unless-stopped
 
-    command: >
-      -n
-      --lt-cred-mech
-      --fingerprint
-      --realm=local
-      --user=testuser:testpass
-      --listening-ip=0.0.0.0
-      --external-ip=3.126.131.56
-      --min-port=49160
-      --max-port=49200
+    volumes:
+      - ./coturn/turnserver.conf:/etc/coturn/turnserver.conf
+
+    command: -c /etc/coturn/turnserver.conf
 
     ports:
       - "3478:3478"
       - "3478:3478/udp"
       - "49160-49200:49160-49200/udp"
+
+    develop:
+      watch:
+        - action: restart
+          path: ./coturn/turnserver.conf
 
   mediamtx:
     image: bluenviron/mediamtx:latest
@@ -95,3 +92,8 @@ services:
       # MIDDLEWARE ATTACHMENT
       # =========================
       - "traefik.http.routers.mediamtx.middlewares=cors"
+
+    develop:
+      watch:
+        - action: restart
+          path: ./mediamtx/mediamtx.yml

@@ -14,7 +14,7 @@ export default function App() {
         controls
         style={{
           width: "100%",
-          maxWidth: 900,
+          maxWidth: 1080,
           background: "black",
         }}
       />
