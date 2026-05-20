@@ -85,6 +85,10 @@ services:
       - "traefik.http.middlewares.cors.headers.accesscontrolalloworigin=*"
       - "traefik.http.middlewares.cors.headers.accesscontrolallowmethods=GET,POST,OPTIONS,HEAD"
       - "traefik.http.middlewares.cors.headers.accesscontrolallowheaders=*"
+      - "traefik.http.middlewares.cors.headers.addvaryheader=true"
 
       # attach middleware
+      - "traefik.http.routers.mediamtx.rule=PathPrefix(`/mystream`)"
+      - "traefik.http.routers.mediamtx.entrypoints=web"
+      - "traefik.http.routers.mediamtx.service=mediamtx"
       - "traefik.http.routers.mediamtx.middlewares=cors"
