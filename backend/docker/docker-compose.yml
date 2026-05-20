@@ -46,18 +46,18 @@ services:
       - "49160-49200:49160-49200/udp"
 
   mediamtx:
-    image: bluenviron/mediamtx:latest
+  image: bluenviron/mediamtx:latest
 
-    container_name: mediamtx
+  container_name: mediamtx
 
-    restart: unless-stopped
+  restart: unless-stopped
 
-    environment:
-      MTX_WEBRTC: "yes"
+  environment:
+    MTX_WEBRTC: "yes"
 
     MTX_WEBRTCICESERVERS2: >
       [{"urls":["stun:3.126.131.56:3478"]},
-      {"urls":["turn:3.126.131.56:3478"],
+       {"urls":["turn:3.126.131.56:3478"],
         "username":"testuser",
         "credential":"testpass"}]
 
