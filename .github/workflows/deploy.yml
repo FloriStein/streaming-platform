@@ -24,16 +24,16 @@ jobs:
       # Upload docker files to S3
       - name: Upload docker config
         run: |
-          aws s3 sync backend/docker s3://S3_BUCKET_NAME/docker
+          aws s3 sync backend/docker s3://${{ secrets.S3_BUCKET_NAME }}/docker
 
       # Deploy via SSM
       - name: Restart containers
         run: |
           aws ssm send-command \
             --document-name "AWS-RunShellScript" \
-            --targets "Key=instanceIds,Values=YOUR_INSTANCE_ID" \
+            --targets "Key=instanceIds,Values=${{ secrets.INSTANCE_ID }}" \
             --parameters 'commands=[
-              "aws s3 sync s3://S3_BUCKET_NAME/docker /home/ec2-user/app",
+              "aws s3 sync s3://${{ secrets.S3_BUCKET_NAME }}/docker /home/ec2-user/app",
               "cd /home/ec2-user/app",
               "/usr/local/bin/docker-compose up -d"
             ]'
