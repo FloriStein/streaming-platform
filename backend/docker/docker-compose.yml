@@ -10,6 +10,7 @@ services:
       - "--api.insecure=true"
       - "--api.dashboard=true"
       - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
 
@@ -69,6 +70,21 @@ services:
 
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.mediamtx.rule=PathPrefix(`/`)"
+
+      # =========================
+      # Routing (WHEP / API)
+      # =========================
+      - "traefik.http.routers.mediamtx.rule=PathPrefix(`/mystream`)"
       - "traefik.http.routers.mediamtx.entrypoints=web"
+
       - "traefik.http.services.mediamtx.loadbalancer.server.port=8889"
+
+      # =========================
+      # CORS MIDDLEWARE (OPTION 3)
+      # =========================
+      - "traefik.http.middlewares.cors.headers.accesscontrolalloworigin=*"
+      - "traefik.http.middlewares.cors.headers.accesscontrolallowmethods=GET,POST,OPTIONS,HEAD"
+      - "traefik.http.middlewares.cors.headers.accesscontrolallowheaders=*"
+
+      # attach middleware
+      - "traefik.http.routers.mediamtx.middlewares=cors"
