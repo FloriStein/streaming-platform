@@ -13,7 +13,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # =========================
       # AWS Login
+      # =========================
       - name: Configure AWS
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -21,19 +23,44 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+      # =========================
       # Upload docker files to S3
+      # =========================
       - name: Upload docker config
         run: |
           aws s3 sync backend/docker s3://${{ secrets.S3_BUCKET_NAME }}/docker
 
+      # =========================
       # Deploy via SSM
-      - name: Restart containers
+      # =========================
+      - name: Deploy via SSM
         run: |
           aws ssm send-command \
             --document-name "AWS-RunShellScript" \
             --targets "Key=instanceIds,Values=${{ secrets.INSTANCE_ID }}" \
             --parameters 'commands=[
-              "aws s3 sync s3://${{ secrets.S3_BUCKET_NAME }}/docker /home/ec2-user/app",
+              "set -euxo pipefail",
+
+              "echo === SYSTEM INFO ===",
+              "whoami",
+              "pwd",
+
+              "echo === CHECK S3 ===",
+              "aws s3 ls s3://${{ secrets.S3_BUCKET_NAME }}/docker || true",
+
+              "echo === SYNC S3 TO EC2 ===",
+              "aws s3 sync s3://${{ secrets.S3_BUCKET_NAME }}/docker /home/ec2-user/app || true",
+
+              "echo === VERIFY FILES ===",
+              "ls -lah /home/ec2-user/app || true",
+              "test -f /home/ec2-user/app/docker-compose.yml || echo MISSING COMPOSE FILE",
+
               "cd /home/ec2-user/app",
-              "/usr/local/bin/docker-compose up -d"
+
+              "echo === DOCKER VERSION ===",
+              "docker version || true",
+              "docker compose version || docker-compose version || echo NO COMPOSE FOUND",
+
+              "echo === START CONTAINERS ===",
+              "docker compose up -d || docker-compose up -d || echo FAILED TO START"
             ]'
