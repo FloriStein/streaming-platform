@@ -68,27 +68,35 @@ services:
       - "8554:8554"
       - "8189:8189/udp"
 
-    labels:
-      - "traefik.enable=true"
+labels:
+  - "traefik.enable=true"
 
-      # =========================
-      # Routing (WHEP / API)
-      # =========================
-      - "traefik.http.routers.mediamtx.rule=PathPrefix(`/mystream`)"
-      - "traefik.http.routers.mediamtx.entrypoints=web"
+  # =========================
+  # ROUTER
+  # =========================
+  - "traefik.http.routers.mediamtx.rule=PathPrefix(`/mystream`)"
+  - "traefik.http.routers.mediamtx.entrypoints=web"
+  - "traefik.http.routers.mediamtx.service=mediamtx"
 
-      - "traefik.http.services.mediamtx.loadbalancer.server.port=8889"
+  # =========================
+  # SERVICE
+  # =========================
+  - "traefik.http.services.mediamtx.loadbalancer.server.port=8889"
 
-      # =========================
-      # CORS MIDDLEWARE (OPTION 3)
-      # =========================
-      - "traefik.http.middlewares.cors.headers.accessControlAllowOrigin=*"
-      - "traefik.http.middlewares.cors.headers.accessControlAllowMethods=GET,POST,OPTIONS,HEAD"
-      - "traefik.http.middlewares.cors.headers.accessControlAllowHeaders=*"
-      - "traefik.http.middlewares.cors.headers.addVaryHeader=true"
+  # =========================
+  # STRIP PREFIX (WICHTIG)
+  # =========================
+  - "traefik.http.middlewares.strip-mystream.stripprefix.prefixes=/mystream"
 
-      # attach middleware
-      - "traefik.http.routers.mediamtx.rule=PathPrefix(`/mystream`)"
-      - "traefik.http.routers.mediamtx.entrypoints=web"
-      - "traefik.http.routers.mediamtx.service=mediamtx"
-      - "traefik.http.routers.mediamtx.middlewares=cors"
+  # =========================
+  # CORS MIDDLEWARE
+  # =========================
+  - "traefik.http.middlewares.cors.headers.accessControlAllowOrigin=*"
+  - "traefik.http.middlewares.cors.headers.accessControlAllowMethods=GET,POST,OPTIONS,HEAD"
+  - "traefik.http.middlewares.cors.headers.accessControlAllowHeaders=*"
+  - "traefik.http.middlewares.cors.headers.addVaryHeader=true"
+
+  # =========================
+  # ATTACH MIDDLEWARES
+  # =========================
+  - "traefik.http.routers.mediamtx.middlewares=strip-mystream,cors"
