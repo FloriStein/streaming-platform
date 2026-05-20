@@ -1,0 +1,9 @@
+webrtc: yes
+
+webrtcICEServers:
+  - urls:
+      - stun:3.126.131.56:3478
+  - urls:
+      - turn:3.126.131.56:3478
+    username: testuser
+    credential: testpass
