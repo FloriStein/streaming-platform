@@ -1,4 +1,4 @@
-webrtc: yes
+webrtc: no
 
 webrtcICEServers:
   - urls:

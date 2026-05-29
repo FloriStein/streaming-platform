@@ -41,6 +41,13 @@ export class StreamingStack extends cdk.Stack {
     // WebRTC
     sg.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.udp(8189));
 
+    // Control Signaling
+    sg.addIngressRule(
+      ec2.Peer.anyIpv4(),
+      ec2.Port.tcp(8081),
+      "Control WebSocket",
+    );
+
     // =========================
     // S3 Bucket
     // =========================

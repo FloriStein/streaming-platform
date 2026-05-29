@@ -22,6 +22,22 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
+  control:
+    build: ./control
+    container_name: control
+    restart: unless-stopped
+
+    ports:
+      - "8081:8081"
+
+    labels:
+      - "traefik.enable=true"
+
+      # WebSocket Route (optional über Traefik)
+      - "traefik.http.routers.control.rule=PathPrefix(`/control`)"
+      - "traefik.http.routers.control.entrypoints=web"
+
+      - "traefik.http.services.control.loadbalancer.server.port=8081"
   coturn:
     image: coturn/coturn
     container_name: coturn
@@ -81,7 +97,7 @@ services:
       - "traefik.http.services.mediamtx.loadbalancer.server.port=8889"
 
       # =========================
-      # CORS (optional, falls du Browser direkt nutzt)
+      # CORS
       # =========================
       - "traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist=*"
       - "traefik.http.middlewares.cors.headers.accesscontrolallowmethods=GET,POST,OPTIONS,HEAD"
