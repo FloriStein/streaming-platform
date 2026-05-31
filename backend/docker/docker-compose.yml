@@ -23,7 +23,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
   control:
-    build: ./control
+    build: ../control
     container_name: control
     restart: unless-stopped
 
