@@ -23,7 +23,9 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
   control:
-    build: ../control
+    build:
+      context: ../control
+      dockerfile: Dockerfile
     container_name: control
     restart: unless-stopped
 
